@@ -66,11 +66,11 @@ done
 
 # Получение списка коммитов с фильтром по TASK
 git checkout -f branch_sync_hran
-logof=$(git log --reverse --grep='TASK' --pretty=format:"%h;%s" storage_1c...branch_sync_hran)
+logof=$(git log --reverse --grep='DEV' --pretty=format:"%h;%s" storage_1c...branch_sync_hran)
 IFS=$'\n' read -d '' -ra commits_list <<< "$logof" || true
 
 # Выход если нет подходящих коммитов
-[ ${#commits_list[@]} -eq 0 ] && echo "Нет коммитов с TASK" && exit 0
+[ ${#commits_list[@]} -eq 0 ] && echo "Нет коммитов с DEV" && exit 0
 
 # Ассоциативный массив для группировки коммитов по TASK-ID
 declare -A tasks_map
@@ -83,7 +83,7 @@ for item in "${commits_list[@]}"; do
     message="${item#*;}"      # Извлечение сообщения коммита (после ;)
     
     # Извлечение TASK-ID из сообщения
-    task_id=$(echo "$message" | sed -E 's/.*(TASK[^ ]*).*/\1/; t; d' | tr -cd '[:alnum:]._-' | tr ' ' '_')
+    task_id=$(echo "$message" | sed -E 's/.*(TASK[^ \r\n]*).*/\1/; t; d' | tr -cd '[:alnum:]._-' | tr ' ' '_')
     [ -z "$task_id" ] && continue  # Пропуск если не найден TASK-ID
 
     # Добавление коммита в массив задач
